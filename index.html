@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lebas 2 Tailors Referral System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    header button:hover {
+      background-color: #0056b3;
+    }
+    section {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+    .input-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      flex: 1;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .edit-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Lebas 2 Tailors - Referral System</h1>
+    <p>Get rewards by sharing your referral code!</p>
+    <button onclick="toggleLoginPanel()">Admin Login</button>
+  </header>
+
+  <section id="loginPanel" style="display: none;">
+    <div class="input-container">
+      <input type="password" id="adminLoginPassword" placeholder="Enter Admin Password">
+      <button onclick="loginAdmin()">Login</button>
+    </div>
+  </section>
+
+  <section id="adminPanel" style="display: none;">
+    <h2>Admin - Update Referral Count</h2>
+    <div class="input-container">
+      <input type="text" id="adminReferralCode" placeholder="Enter Referral Code">
+      <input type="number" id="adminReferralCount" placeholder="Number of New Referrals">
+      <button onclick="updateReferralCount()">Update Count</button>
+    </div>
+    <h3>Generated Referral Codes</h3>
+    <table id="referralTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Referral Code</th>
+          <th>Referrals</th>
+          <th class="adminOnly">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Referral codes will be listed here -->
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Generate Your Referral Code</h2>
+    <div class="input-container">
+      <input type="text" id="customerName" placeholder="Enter Your Name">
+      <button onclick="generateReferralCode()">Generate Code</button>
+    </div>
+
+    <div class="result" id="referralResult"></div>
+    <div id="shareOptions" style="display: none; text-align: center; margin-top: 10px;">
+      <button onclick="copyReferralLink()">Copy Link</button>
+    </div>
+
+    <h3>Track Your Referrals</h3>
+    <div class="input-container">
+      <input type="text" id="referralCode" placeholder="Enter Referral Code">
+      <button onclick="trackReferral()">Track Referral</button>
+    </div>
+
+    <div class="result" id="trackingResult"></div>
+  </section>
+  <p>🎁 প্রতিদিন ফ্রি ৫ টাকা শপিং বোনাস! 🛍️
+    শুধু একটা কাজ করলেই হবে —
+    👉 আপনার কপি লিংক কপি করে যদি প্রতিদিন আপনার স্যোসল আইডিতে শেয়ার করেন।
+    ✅ প্রতিদিন ১ বার শেয়ার করলেই পাবেন ৫ টাকা শপিং বোনাস!
+    📅 নিয়মিত শেয়ার করুন, বোনাস নিন, শপিং করুন আরও মজায়!
+    **স্যোসাল মিডিয়ার যে নাম আছে যেমন আমার ফেসবুক আইডির নাম Md Saddik Molla এই নামে। 
+    আপনার আইডির যে নাম সেই নাম Enter Your Name লিখুন।**
+    
+   📲 এখনই শেয়ার করুন এবং উপভোগ করুন অফারটি!
+    #ShoppingBonus #DailyOffer #Lebas2Tailors #FreeBonus  </p>
+
+    <h3>আপনে ১০০০/-, টাকার সপিং করলেই-১০০/-টাকা বোনাস থেকে খরচ করতে পারবেন। </h3>
+  <script>
+    let referralDatabase = JSON.parse(localStorage.getItem('referralDatabase')) || [];
+    const adminPassword = 'saddikmolla';
+    let isAdminLoggedIn = false;
+
+    function toggleLoginPanel() {
+      const panel = document.getElementById('loginPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function loginAdmin() {
+      const pass = document.getElementById('adminLoginPassword').value.trim();
+      if (pass === adminPassword) {
+        isAdminLoggedIn = true;
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('loginPanel').style.display = 'none';
+        updateReferralTable();
+      } else {
+        alert('Wrong password!');
+      }
+    }
+
+    function updateReferralTable() {
+      const tableBody = document.getElementById('referralTable').getElementsByTagName('tbody')[0];
+      tableBody.innerHTML = '';
+      referralDatabase.forEach((referral, index) => {
+        const row = tableBody.insertRow();
+        row.insertCell(0).innerText = referral.name;
+        row.insertCell(1).innerText = referral.code;
+        row.insertCell(2).innerText = referral.referrals;
+
+        const actionCell = row.insertCell(3);
+        if (isAdminLoggedIn) {
+          const editBtn = document.createElement('button');
+          editBtn.className = 'edit-btn';
+          editBtn.innerText = 'Edit';
+          editBtn.onclick = () => {
+            const newCount = prompt("Enter new referral count:", referral.referrals);
+            if (!isNaN(newCount)) {
+              referral.referrals = parseInt(newCount);
+              localStorage.setItem('referralDatabase', JSON.stringify(referralDatabase));
+              updateReferralTable();
+            }
+          };
+          actionCell.appendChild(editBtn);
+        }
+      });
+    }
+
+    function generateReferralCode() {
+      const customerName = document.getElementById('customerName').value.trim();
+      if (customerName) {
+        const referralCode = `LB2T-${customerName.toUpperCase().slice(0, 5)}-${Math.floor(Math.random() * 10000)}`;
+        document.getElementById('referralResult').innerText = `Your Referral Code: ${referralCode}`;
+        document.getElementById('shareOptions').style.display = 'block';
+
+        referralDatabase.push({ name: customerName, code: referralCode, referrals: 0 });
+        localStorage.setItem('referralDatabase', JSON.stringify(referralDatabase));
+        updateReferralTable();
+      } else {
+        alert("Please enter your name!");
+      }
+    }
+
+    function trackReferral() {
+      const referralCode = document.getElementById('referralCode').value.trim();
+      const referral = referralDatabase.find(r => r.code === referralCode);
+      document.getElementById('trackingResult').innerText = referral
+        ? `Referral Code: ${referral.code}\nReferrals: ${referral.referrals}`
+        : "No such referral code found.";
+    }
+
+    function updateReferralCount() {
+      const referralCode = document.getElementById('adminReferralCode').value.trim();
+      const newReferrals = parseInt(document.getElementById('adminReferralCount').value.trim(), 10);
+      const referral = referralDatabase.find(r => r.code === referralCode);
+      if (referral && !isNaN(newReferrals)) {
+        referral.referrals += newReferrals;
+        localStorage.setItem('referralDatabase', JSON.stringify(referralDatabase));
+        updateReferralTable();
+        alert("Updated successfully!");
+      } else {
+        alert("Invalid referral code or number");
+      }
+    }
+
+    // Updated function to copy referral link with site URL and custom message
+    function copyReferralLink() {
+      const resultDiv = document.getElementById('referralResult');
+      const text = resultDiv.innerText;
+      const referralCode = text.split(': ')[1];
+
+      if (referralCode) {
+        // Custom message with site URL
+        const shareMessage = `আপনে**Lebas 2 Tailors** থেকে 100 টাকা বোনাস পেয়েছেন।  এবং আপনার বন্ধুকে রেফারেল কোড শেয়ার করে আরও 5 টাকা বোনাস নিন দিনে এক বার আপনার ফেসবুক আইডিতে শেয়ার করুন।আমাদের মানসম্মত সেবা উপভোগ করুন, আর আপনি পেতে পারেন আকর্ষণীয় পুরস্কার!  \n👉 আমার রেফারেল কোড: ${referralCode} \n দিয়ে আপনে সপিং করলে 15% বোনাস পাবেন।যোগাযোগ করুন: 🔹 Shop Now 👉 https://saddik777.github.io/labes/`;
+        navigator.clipboard.writeText(shareMessage).then(() => {
+          alert("Link and message copied to clipboard! Share it with others.");
+        }).catch(err => {
+          alert("Failed to copy: " + err);
+        });
+      }
+    }
+
+    window.onload = updateReferralTable;
+  </script>
+</body>
+</html>
